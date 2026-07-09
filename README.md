@@ -74,7 +74,7 @@
 </div>
 
 <script>
-    // https://script.google.com/macros/s/AKfycbzhyOTKGaqMmobs70TTVxpxnzYD_k0gHI1nSm81YTpWUeHAShHOoKPdTa1IysY07dtY/exec
+    // https://script.google.com/macros/s/AKfycbyLGae7D1OqUgmi93_RkP7T40qm3Lco_dVz8IyK_XWeOcPhTH0b5r2GOWWsYyO3gAHt/exec
     const GAS_URL = "ここにGASで発行したURLを貼り付けます";
 
     // 画面開いた時の初期設定（30日制限）
