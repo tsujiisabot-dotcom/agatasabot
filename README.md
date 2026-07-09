@@ -74,7 +74,7 @@
 </div>
 
 <script>
-    // https://script.google.com/macros/s/AKfycbyLGae7D1OqUgmi93_RkP7T40qm3Lco_dVz8IyK_XWeOcPhTH0b5r2GOWWsYyO3gAHt/exec
+    // https://script.google.com/macros/s/AKfycbxQyp6JuVYGiSl-NhaeWEONW0O0_y6oOIcRYlNyV-7fUheXJIJ5rWhWOLtmXqWU3IPh/exec
     const GAS_URL = "ここにGASで発行したURLを貼り付けます";
 
     // 画面開いた時の初期設定（30日制限）
@@ -87,7 +87,7 @@
     dateInput.min = formatDate(today);
     dateInput.max = formatDate(maxDate);
 
-    // メニュー選択切り替え
+    // メニュー選択切り替え（修正：切り替え時に正しく裏のデータを書き換えるようにしました）
     function selectType(type, hours) {
         document.getElementById('reserveType').value = type;
         document.getElementById('duration').value = hours;
@@ -95,7 +95,10 @@
         document.getElementById('btn-visit').classList.toggle('selected', type === '見学');
         document.getElementById('btn-trial').classList.toggle('selected', type === '体験');
         
-        if(dateInput.value) fetchAvailableSlots(dateInput.value);
+        // 日付がすでに選ばれていれば、新しく選んだ種類の空き状況をすぐ読み直す
+        if(dateInput.value) {
+            fetchAvailableSlots(dateInput.value);
+        }
     }
 
     // 日付が変更されたとき
@@ -117,7 +120,7 @@
         }
     }
 
-    // 空き状況を問い合わせる
+    // 空き状況を問い合わせる処理
     function fetchAvailableSlots(dateStr) {
         const timeSelect = document.getElementById('reserveTime');
         const loadingText = document.getElementById('loadingText');
@@ -127,7 +130,8 @@
         timeSelect.disabled = true;
         timeSelect.innerHTML = '<option value="">調べる中...</option>';
 
-        const url = `${GAS_URL}?action=check&date=${dateStr}&type=${type}`;
+        // GASへの正しい問い合わせURLを作成
+        const url = `${GAS_URL}?action=check&date=${dateStr}&type=${encodeURIComponent(type)}`;
         
         fetch(url)
         .then(res => res.json())
@@ -142,7 +146,7 @@
                     option.textContent = `${slot.start} ～ ${slot.end}`;
                 } else {
                     option.textContent = `× ${slot.start} ～ ${slot.end} (予定が入っています)`;
-                    option.disabled = true;
+                    option.disabled = true; // 選択不可にする
                 }
                 timeSelect.appendChild(option);
             });
@@ -150,7 +154,7 @@
         })
         .catch(err => {
             timeSelect.innerHTML = '<option value="">エラーが発生しました</option>';
-            alert("空き情報の取得に失敗しました。");
+            alert("空き情報の取得に失敗しました。日にちをもう一度選び直すか、URLの設定を確認してください。");
         })
         .finally(() => {
             loadingText.style.display = "none";
