@@ -14,7 +14,7 @@
         .type-btn { flex: 1; padding: 15px; font-size: 18px; font-weight: bold; border: 2px solid #cbd5e1; border-radius: 8px; background: white; cursor: pointer; transition: all 0.2s; }
         .type-btn.selected { background: #3498db; color: white; border-color: #3498db; }
 
-        input[type="date"], select, input[type="text"], input[type="tel"] { width: 100%; padding: 12px; font-size: 16px; border: 2px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
+        input[type="text"], input[type="tel"], input[type="date"], select { width: 100%; padding: 12px; font-size: 16px; border: 2px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; }
         input[type="date"].has-value { background-color: #e8f4fd; border-color: #3498db; }
         select.has-value { background-color: #e8f4fd; border-color: #3498db; }
 
@@ -61,6 +61,17 @@
 
         <label for="userPhone">5. 電話番号</label>
         <input type="tel" id="userPhone" name="userPhone" placeholder="（例）09012345678" required>
+
+        <!-- ここから追加項目 (任意入力のため required は外しています) -->
+        <label for="illnessName">6. 障害名/病名</label>
+        <input type="text" id="illnessName" name="illnessName" placeholder="ご記入ください">
+
+        <label for="companionName">7. 同伴者 (同行される場合のみ記入)</label>
+        <input type="text" id="companionName" name="companionName" placeholder="お名前をご記入ください">
+
+        <label for="desiredTask">8. 体験したい作業 (体験の場合のみ記入)</label>
+        <input type="text" id="desiredTask" name="desiredTask" placeholder="ご記入ください">
+        <!-- ここまで追加項目 -->
 
         <button type="submit" class="submit-btn" id="submitBtn">この内容で予約する</button>
     </form>
@@ -125,7 +136,6 @@
 
         const url = `${GAS_URL}?action=check&date=${dateStr}&type=${encodeURIComponent(type)}`;
         
-        // リダイレクトを追跡する設定を追加
         fetch(url, { redirect: "follow" })
         .then(res => {
             if (!res.ok) throw new Error("サーバー通信エラーが発生しました。");
@@ -167,10 +177,12 @@
         const formData = new FormData(this);
         const data = Object.fromEntries(formData.entries());
         const btn = document.getElementById('submitBtn');
+        const errorLog = document.getElementById('errorLog');
+        
         btn.disabled = true;
         btn.textContent = "送信中...";
+        errorLog.style.display = "none";
 
-        // リダイレクトを追跡する設定を追加
         fetch(GAS_URL, {
             method: "POST",
             body: new URLSearchParams(data),
@@ -182,19 +194,22 @@
         })
         .then(result => {
             if(result.status === "success") {
-                alert("予約がかんりょうしました！");
+                alert("予約が完了しました！");
                 this.reset();
                 dateInput.classList.remove('has-value');
-                document.getElementById('reserveTime').classList.remove('has-value');
-                document.getElementById('reserveTime').disabled = true;
-                document.getElementById('reserveTime').innerHTML = '<option value="">-- 日にちを先に選んでください --</option>';
+                const timeSelect = document.getElementById('reserveTime');
+                timeSelect.classList.remove('has-value');
+                timeSelect.innerHTML = '<option value="">-- 日にちを先に選んでください --</option>';
+                timeSelect.disabled = true;
                 selectType('見学', 1);
             } else {
-                alert("エラー: " + result.message);
+                throw new Error(result.message || "予約処理でエラーが発生しました。");
             }
         })
         .catch(err => {
-            alert("通信エラーが発生しました: " + err.message);
+            errorLog.innerText = "【送信エラー】: " + err.message;
+            errorLog.style.display = "block";
+            alert("予約に失敗しました。詳細：\n" + err.message);
         })
         .finally(() => {
             btn.disabled = false;
@@ -202,6 +217,5 @@
         });
     });
 </script>
-
 </body>
 </html>
