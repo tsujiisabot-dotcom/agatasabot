@@ -47,7 +47,7 @@
 
         <label for="reserveDate">2. 日にちを選んでください</label>
         <input type="date" id="reserveDate" name="reserveDate" required onchange="handleDateChange(this)">
-        <p class="note">※今日から 30 日先まで選べます</p>
+        <p class="note">※今日から30日先まで選べます</p>
         <p id="loadingText">空いている時間を調べています。すこし待ってね...</p>
         <div id="errorLog"></div>
 
@@ -67,15 +67,14 @@
 </div>
 
 <script>
-    // https://google.com
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzxYSE5kDrXNlBOPyZBRwqIRBTsvSG_p2XdJaXPljfOiPUkUwczkyEx13E0y2Bv7jsM/exec";
+    // ⚠️重要：新しくデプロイしたGASのWebアプリURLをここに貼り付けてください
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbwaKF1O78OEKzdwUfMZ8BaPk1UgaRmUFHAyvLTijSYPgAIrC1TeZTEmDv0GltI76-O3/exec";
 
     const dateInput = document.getElementById('reserveDate');
     const today = new Date();
     const maxDate = new Date();
     maxDate.setDate(today.getDate() + 30);
 
-    // タイムゾーンがズレないようにローカルの日付文字列を作る
     const year = today.getFullYear();
     const month = String(today.getMonth() + 1).padStart(2, '0');
     const day = String(today.getDate()).padStart(2, '0');
@@ -126,8 +125,12 @@
 
         const url = `${GAS_URL}?action=check&date=${dateStr}&type=${encodeURIComponent(type)}`;
         
-        fetch(url)
-        .then(res => res.json())
+        // リダイレクトを追跡する設定を追加
+        fetch(url, { redirect: "follow" })
+        .then(res => {
+            if (!res.ok) throw new Error("サーバー通信エラーが発生しました。");
+            return res.json();
+        })
         .then(slots => {
             if (slots.status === "error") {
                 throw new Error(slots.message);
@@ -152,6 +155,7 @@
             timeSelect.innerHTML = '<option value="">エラーが発生しました</option>';
             errorLog.innerText = "【プログラムの案内】: " + err.message;
             errorLog.style.display = "block";
+            alert("空き情報の取得に失敗しました。詳細：\n" + err.message);
         })
         .finally(() => {
             loadingText.style.display = "none";
@@ -166,11 +170,16 @@
         btn.disabled = true;
         btn.textContent = "送信中...";
 
+        // リダイレクトを追跡する設定を追加
         fetch(GAS_URL, {
             method: "POST",
-            body: new URLSearchParams(data)
+            body: new URLSearchParams(data),
+            redirect: "follow"
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("サーバーへのデータ送信に失敗しました。");
+            return res.json();
+        })
         .then(result => {
             if(result.status === "success") {
                 alert("予約がかんりょうしました！");
@@ -196,4 +205,3 @@
 
 </body>
 </html>
-
