@@ -28,8 +28,10 @@ option:disabled{color:#94a3b8;background-color:#f1f5f9;}
 </style>
 </head>
 <body>
-<div class="container"> 
+<div class="title-group">
 <h1>就労継続支援A型事業所sabot</h1>
+   <p class="subtitle">施設見学・予約</p>
+</div>
 <label>1. どちらを希望しますか？</label>
 <div class="type-selector">
 <button type="button" class="type-btn selected" id="btn-visit" onclick="selectType('見学',1)">見学 (1時間)</button>
