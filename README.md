@@ -42,7 +42,7 @@ option:disabled{color:#94a3b8;background-color:#f1f5f9;}
 <input type="hidden" id="duration" name="duration" value="1">
 <label for="reserveDate">2. 日にちを選んでください</label>
 <input type="date" id="reserveDate" name="reserveDate" required>
-<p class="note">※明日から30日先まで選べます</p>
+<p class="note">※明日から14日先まで選べます</p>
 <p id="loadingText">空いている時間を調べています。もう少々お待ちください...</p>
 <div id="errorLog"></div>
 <label for="reserveTime">3. 時間を選んでください</label>
@@ -81,9 +81,9 @@ const today=new Date();
 const minDate=new Date();
 minDate.setDate(today.getDate() + 1);
 
-// 最大値（予約できる最後の日）を「31日後」に設定
+// 最大値（予約できる最後の日）を「14日後」に設定
 const maxDate=new Date();
-maxDate.setDate(today.getDate() + 31);
+maxDate.setDate(today.getDate() + 14);
 
 // カレンダーの選択可能範囲を設定
 dateInput.min=`${minDate.getFullYear()}-${String(minDate.getMonth()+1).padStart(2,'0')}-${String(minDate.getDate()).padStart(2,'0')}`;
@@ -163,7 +163,7 @@ dateInput.addEventListener('blur', function() {
 
     // 範囲外（明日より前、または31日後より先）を完全に弾く
     if (selectedCheck < minCheck || selectedCheck > maxCheck) {
-        alert("予約は【明日から31日先まで】の間で選択してください。");
+        alert("予約は【明日から14日先まで】の間で選択してください。");
         clearDateInput();
         return;
     }
