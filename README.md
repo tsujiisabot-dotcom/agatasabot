@@ -150,6 +150,18 @@ dateInput.addEventListener('blur', function() {
 
     const parts = this.value.split('-');
     const selectedCheck = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)).getTime();
+    // ★【追加】土日（曜日）のチェックを追加
+    const selectedDay = new Date(parseInt(parts, 10), parseInt(parts, 10) - 1, parseInt(parts, 10)).getDay(); // 0:日, 6:土
+    if (selectedDay === 0 || selectedDay === 6) {
+        alert("土曜日・日曜日は定休日です。\n平日の日付を選択してください。");
+        this.value = "";
+        this.classList.remove('has-value');
+        
+        const ts = document.getElementById('reserveTime');
+        ts.innerHTML = '<option value="">-- 日にちを先に選んでください --</option>';
+        ts.disabled = true;
+        return;
+    }
 
     // 範囲外（明日より前、または31日後より先）を完全に弾く
     if (selectedCheck < minCheck || selectedCheck > maxCheck) {
