@@ -98,7 +98,38 @@ const tf=document.getElementById('trialFields');
 if(type==='体験'){tf.style.display='block';}else{tf.style.display='none';const s=document.getElementById('desiredTask');s.value='';s.classList.remove('has-value');}
 if(dateInput.value)fetchAvailableSlots(dateInput.value);
 }
-function handleDateChange(input){if(input.value){input.classList.add('has-value');fetchAvailableSlots(input.value);}else{input.classList.remove('has-value');}}
+function handleDateChange(input){
+    if(!input.value) {
+        input.classList.remove('has-value');
+        return;
+    }
+
+    // 選択された日付
+    const selectedDate = new Date(input.value);
+    selectedDate.setHours(0,0,0,0);
+
+    // 今日の日付（時間をリセット）
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    // ★当日、または過去の日付が選ばれたらリセットする
+    if (selectedDate <= today) {
+        alert("当日および過去の予約はできません。\n明日以降の日付を選択してください。");
+        input.value = ""; // 選択をクリア
+        input.classList.remove('has-value');
+        
+        // 時間選択のドロップダウンも初期化
+        const ts = document.getElementById('reserveTime');
+        ts.innerHTML = '<option value="">-- 日にちを先に選んでください --</option>';
+        ts.disabled = true;
+        return;
+    }
+
+    // 正常な日付（明日以降）であれば処理を続行
+    input.classList.add('has-value');
+    fetchAvailableSlots(input.value);
+}
+
 function handleTimeChange(select){if(select.value){select.classList.add('has-value');}else{select.classList.remove('has-value');}}
 function fetchAvailableSlots(dateStr){
 const ts=document.getElementById('reserveTime');
