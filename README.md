@@ -73,7 +73,7 @@ option:disabled{color:#94a3b8;background-color:#f1f5f9;}
 </form>
 </div>
 <script>
-const GAS_URL="https://script.google.com/macros/s/AKfycbzG9VMcjS4Pncxew0DscZr25ns7FC-X2DwPbb44Qc-SBbRQo9tdSvMXe0ojZBlDv2q5/exec";
+const GAS_URL="https://script.google.com/macros/s/AKfycby3AVFke1pvfRnM4_ukJh8sqmQU_5SQ7rTRPYA-S77-8HnjGptYld-bs5POcLloyx1k/exec";
 const dateInput=document.getElementById('reserveDate');
 const today=new Date();
 
