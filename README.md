@@ -73,7 +73,7 @@ option:disabled{color:#94a3b8;background-color:#f1f5f9;}
 </form>
 </div>
 <script>
-const GAS_URL="https://script.google.com/macros/s/AKfycbzJNjlY_oPkqn_LOctNvkVyzb9iilJneNNbeQhSSMj-RH0GNSmQChvVFw0xXZGwI0br/exec";
+const GAS_URL="https://script.google.com/macros/s/AKfycbwCPC9D5Qj0S4eCT1Of3OkZjD5GTtr96jHEv0n7FedlvTeprkpOxSOHHdt2QwuZqUAe/exec";
 const dateInput=document.getElementById('reserveDate');
 const today=new Date();
 
@@ -104,7 +104,6 @@ dateInput.classList.add('has-value');
 fetchAvailableSlots(dateInput.value);
 // ★ここまで追加
 
-
 function handleTimeChange(select){if(select.value){select.classList.add('has-value');}else{select.classList.remove('has-value');}}
 function fetchAvailableSlots(dateStr){
 const ts=document.getElementById('reserveTime');
@@ -127,6 +126,7 @@ ts.disabled=false;
 .catch(err=>{ts.innerHTML='<option value="">エラー発生</option>';el.innerText="【エラー】: "+err.message;el.style.display="block";alert("取得失敗:\n"+err.message);})
 .finally(()=>{lt.style.display="none";});
 }
+
 // iPhoneの発火バグと時差・範囲無視を完璧に防ぐチェック処理
 let isChanging = false;
 dateInput.addEventListener('change', () => { isChanging = true; });
@@ -149,35 +149,37 @@ dateInput.addEventListener('blur', function() {
     const maxCheck = new Date(tYear, tMonth, tDate + 30).getTime();
 
     const parts = this.value.split('-');
+    
+    // 【バグ修正済み】選択された日付と曜日の正しいチェック
     const selectedCheck = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)).getTime();
-    // ★【追加】土日（曜日）のチェックを追加
-   const selectedDay = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)).getDay(); // 0:日, 6:土
+    const selectedDay = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)).getDay(); // 0:日, 6:土
+    
+    // 土日だったらアラートを出してリセット
     if (selectedDay === 0 || selectedDay === 6) {
         alert("土曜日・日曜日は定休日です。\n平日の日付を選択してください。");
-        this.value = "";
-        this.classList.remove('has-value');
-        
-        const ts = document.getElementById('reserveTime');
-        ts.innerHTML = '<option value="">-- 日にちを先に選んでください --</option>';
-        ts.disabled = true;
+        clearDateInput();
         return;
     }
 
     // 範囲外（明日より前、または31日後より先）を完全に弾く
     if (selectedCheck < minCheck || selectedCheck > maxCheck) {
         alert("予約は【明日から31日先まで】の間で選択してください。");
-        this.value = ""; 
-        this.classList.remove('has-value');
-        
-        const ts = document.getElementById('reserveTime');
-        ts.innerHTML = '<option value="">-- 日にちを先に選んでください --</option>';
-        ts.disabled = true;
+        clearDateInput();
         return;
     }
 
     this.classList.add('has-value');
     fetchAvailableSlots(this.value);
 });
+
+// 日付入力をリセットする共通関数
+function clearDateInput() {
+    dateInput.value = "";
+    dateInput.classList.remove('has-value');
+    const ts = document.getElementById('reserveTime');
+    ts.innerHTML = '<option value="">-- 日にちを先に選んでください --</option>';
+    ts.disabled = true;
+}
 
 document.getElementById('reserveForm').addEventListener('submit',function(e){
 e.preventDefault();
@@ -196,6 +198,8 @@ ts.innerHTML='<option value="">-- 日にちを先に選んでください --</op
 .catch(err=>{el.innerText="【送信エラー】: "+err.message;el.style.display="block";alert("予約失敗:\n"+err.message);})
 .finally(()=>{btn.disabled=false;btn.textContent="この内容で予約する";});
 });
+
+
 </script>
 </body>
 </html>
